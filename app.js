@@ -1,4 +1,50 @@
 const DEFAULT_OUTPUT = "No output yet.";
+const THEME_STORAGE_KEY = "docktools-theme";
+const themeToggle = document.getElementById("themeToggle");
+
+function getStoredTheme() {
+  try {
+    return localStorage.getItem(THEME_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function storeTheme(theme) {
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+  } catch {
+    // Ignore storage failures (private mode or blocked storage).
+  }
+}
+
+function resolveInitialTheme() {
+  const stored = getStoredTheme();
+  if (stored === "light" || stored === "dark") {
+    return stored;
+  }
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function applyTheme(theme) {
+  const nextTheme = theme === "dark" ? "dark" : "light";
+  document.documentElement.setAttribute("data-theme", nextTheme);
+  if (!themeToggle) return;
+  if (nextTheme === "dark") {
+    themeToggle.textContent = "Light mode";
+    themeToggle.setAttribute("aria-label", "Switch to light mode");
+  } else {
+    themeToggle.textContent = "Dark mode";
+    themeToggle.setAttribute("aria-label", "Switch to dark mode");
+  }
+}
+
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+  const nextTheme = isDark ? "light" : "dark";
+  applyTheme(nextTheme);
+  storeTheme(nextTheme);
+}
 
 function setStatus(el, message, kind = "info") {
   if (!el) return;
@@ -1509,6 +1555,11 @@ document.getElementById("formatClear").addEventListener("click", () => {
   setStatus(formatStatus, "Cleared.", "info");
 });
 
+if (themeToggle) {
+  themeToggle.addEventListener("click", toggleTheme);
+}
+
+applyTheme(resolveInitialTheme());
 addHelpTooltips();
 
 // Initialize outputs

@@ -1,18 +1,40 @@
 :root {
   color-scheme: light;
-  --bg: #f5f1ea;
-  --bg-strong: #efe6d9;
-  --card: rgba(255, 255, 255, 0.85);
-  --ink: #1f1c17;
-  --muted: #5e5347;
-  --line: rgba(94, 83, 71, 0.25);
-  --primary: #0d6a63;
-  --primary-dark: #064743;
-  --accent: #f27f31;
-  --shadow: 0 20px 60px rgba(31, 28, 23, 0.12);
+  --bg: #dfe8fb;
+  --bg-strong: #cddaf2;
+  --surface: rgba(255, 255, 255, 0.58);
+  --surface-strong: rgba(255, 255, 255, 0.75);
+  --ink: #0f172a;
+  --muted: #475569;
+  --line: rgba(255, 255, 255, 0.65);
+  --line-strong: rgba(148, 163, 184, 0.36);
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --accent: #06b6d4;
+  --shadow: 0 18px 42px rgba(15, 23, 42, 0.16);
+  --inset: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  --code-bg: rgba(241, 245, 249, 0.86);
   --radius: 18px;
   --mono: "JetBrains Mono", "SFMono-Regular", ui-monospace, monospace;
   --sans: "Space Grotesk", "Segoe UI", sans-serif;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #040b1d;
+  --bg-strong: #0a1630;
+  --surface: rgba(17, 25, 40, 0.52);
+  --surface-strong: rgba(15, 23, 42, 0.66);
+  --ink: #e2e8f0;
+  --muted: #a5b4c9;
+  --line: rgba(148, 163, 184, 0.22);
+  --line-strong: rgba(148, 163, 184, 0.38);
+  --primary: #60a5fa;
+  --primary-dark: #93c5fd;
+  --accent: #22d3ee;
+  --shadow: 0 20px 50px rgba(2, 6, 23, 0.55);
+  --inset: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  --code-bg: rgba(15, 23, 42, 0.82);
 }
 
 * {
@@ -22,10 +44,14 @@
 body {
   margin: 0;
   font-family: var(--sans);
-  background: radial-gradient(circle at 20% 20%, #fef8ef 0%, var(--bg) 50%, #efe6d9 100%);
+  background:
+    radial-gradient(circle at 18% 10%, rgba(96, 165, 250, 0.4), transparent 34%),
+    radial-gradient(circle at 82% 82%, rgba(34, 211, 238, 0.3), transparent 36%),
+    linear-gradient(160deg, var(--bg) 0%, var(--bg-strong) 100%);
   color: var(--ink);
   min-height: 100vh;
   overflow-x: hidden;
+  transition: background 0.35s ease, color 0.25s ease;
 }
 
 .bg-orb {
@@ -38,13 +64,13 @@ body {
 }
 
 .orb-1 {
-  background: radial-gradient(circle, rgba(13, 106, 99, 0.6), transparent 70%);
+  background: radial-gradient(circle, rgba(96, 165, 250, 0.65), transparent 70%);
   top: -120px;
   left: -120px;
 }
 
 .orb-2 {
-  background: radial-gradient(circle, rgba(242, 127, 49, 0.55), transparent 70%);
+  background: radial-gradient(circle, rgba(34, 211, 238, 0.55), transparent 70%);
   bottom: -160px;
   right: -80px;
 }
@@ -62,6 +88,14 @@ body {
   margin-bottom: 28px;
 }
 
+.hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
 .badge {
   display: inline-block;
   padding: 6px 14px;
@@ -70,8 +104,30 @@ body {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--primary-dark);
-  background: rgba(13, 106, 99, 0.12);
-  margin-bottom: 12px;
+  background: var(--surface-strong);
+  border: 1px solid var(--line);
+  box-shadow: var(--inset);
+}
+
+.theme-toggle {
+  background: var(--surface-strong);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  box-shadow: var(--inset), 0 12px 24px rgba(15, 23, 42, 0.14);
+}
+
+.theme-toggle:hover {
+  border-color: var(--line-strong);
+  transform: translateY(-1px);
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid rgba(37, 99, 235, 0.45);
+  outline-offset: 2px;
 }
 
 .hero h1 {
@@ -95,26 +151,27 @@ body {
 }
 
 .tab {
-  border: 1px solid transparent;
+  border: 1px solid var(--line);
   padding: 10px 16px;
   border-radius: 999px;
   font-weight: 600;
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--surface);
   color: var(--muted);
   cursor: pointer;
   transition: all 0.2s ease;
+  box-shadow: var(--inset);
 }
 
 .tab:hover {
-  border-color: rgba(94, 83, 71, 0.3);
+  border-color: var(--line-strong);
   color: var(--ink);
 }
 
 .tab.active {
   background: var(--primary);
   color: #fff;
-  border-color: transparent;
-  box-shadow: 0 10px 30px rgba(13, 106, 99, 0.25);
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 12px 26px rgba(37, 99, 235, 0.36);
 }
 
 .tab-panel {
@@ -140,12 +197,14 @@ body {
 }
 
 .panel {
-  background: var(--card);
+  background: var(--surface);
   border-radius: var(--radius);
   padding: 20px;
   box-shadow: var(--shadow);
-  border: 1px solid rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(6px);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  box-shadow: var(--inset), var(--shadow);
 }
 
 .panel-header {
@@ -184,8 +243,8 @@ textarea {
   width: 100%;
   min-height: 240px;
   border-radius: 14px;
-  border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--line-strong);
+  background: var(--surface-strong);
   padding: 14px;
   font-family: var(--mono);
   font-size: 0.9rem;
@@ -210,11 +269,11 @@ input,
 select {
   width: 100%;
   border-radius: 12px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-strong);
   padding: 10px 12px;
   font-family: var(--sans);
   font-size: 0.95rem;
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--surface-strong);
   color: var(--ink);
 }
 
@@ -274,8 +333,8 @@ select {
   height: 16px;
   min-width: 16px;
   border-radius: 50%;
-  border: 1px solid rgba(13, 106, 99, 0.45);
-  background: rgba(13, 106, 99, 0.1);
+  border: 1px solid rgba(37, 99, 235, 0.45);
+  background: rgba(37, 99, 235, 0.12);
   color: var(--primary-dark);
   font-family: var(--mono);
   font-size: 0.72rem;
@@ -290,8 +349,8 @@ select {
 
 .help-dot:hover,
 .help-dot:focus-visible {
-  background: rgba(13, 106, 99, 0.2);
-  border-color: rgba(13, 106, 99, 0.65);
+  background: rgba(37, 99, 235, 0.2);
+  border-color: rgba(37, 99, 235, 0.65);
 }
 
 .help-wrap .help-tip {
@@ -349,7 +408,7 @@ button {
 button.primary {
   background: var(--primary);
   color: white;
-  box-shadow: 0 14px 30px rgba(13, 106, 99, 0.3);
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.35);
 }
 
 button.primary:hover {
@@ -358,21 +417,23 @@ button.primary:hover {
 }
 
 button.secondary {
-  background: white;
+  background: var(--surface-strong);
   color: var(--primary-dark);
-  border: 1px solid rgba(13, 106, 99, 0.25);
+  border: 1px solid var(--line-strong);
+  box-shadow: var(--inset);
 }
 
 button.secondary:hover {
-  background: rgba(13, 106, 99, 0.08);
+  background: rgba(37, 99, 235, 0.12);
 }
 
 button.ghost {
-  background: transparent;
+  background: var(--surface);
   border: 1px solid var(--line);
   color: var(--muted);
   font-size: 0.85rem;
   padding: 8px 12px;
+  box-shadow: var(--inset);
 }
 
 button.ghost:hover {
@@ -395,7 +456,8 @@ button.ghost:hover {
 }
 
 .status {
-  background: rgba(31, 28, 23, 0.05);
+  background: var(--surface-strong);
+  border: 1px solid var(--line);
   border-radius: 12px;
   padding: 12px 14px;
   font-size: 0.9rem;
@@ -404,8 +466,9 @@ button.ghost:hover {
 }
 
 .status[data-kind="success"] {
-  background: rgba(13, 106, 99, 0.15);
+  background: rgba(37, 99, 235, 0.18);
   color: var(--primary-dark);
+  border-color: rgba(37, 99, 235, 0.28);
 }
 
 .status[data-kind="error"] {
@@ -420,11 +483,14 @@ button.ghost:hover {
 
 .output {
   margin-top: 28px;
-  background: var(--card);
+  background: var(--surface);
   border-radius: var(--radius);
   padding: 20px;
   box-shadow: var(--shadow);
-  border: 1px solid rgba(255, 255, 255, 0.65);
+  border: 1px solid var(--line);
+  box-shadow: var(--inset), var(--shadow);
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
 }
 
 .utility-grid .output {
@@ -454,10 +520,11 @@ button.ghost:hover {
 }
 
 pre {
-  background: #111614;
-  color: #eaf4f2;
+  background: var(--code-bg);
+  color: var(--ink);
   padding: 18px;
   border-radius: 14px;
+  border: 1px solid var(--line);
   min-height: 160px;
   font-family: var(--mono);
   font-size: 0.9rem;
@@ -480,6 +547,10 @@ pre {
 }
 
 @media (max-width: 900px) {
+  .hero-top {
+    justify-content: center;
+  }
+
   .panel-actions {
     flex-direction: row;
     flex-wrap: wrap;
