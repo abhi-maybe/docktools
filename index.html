@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Docker Utility Lab</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="bg-orb orb-1" aria-hidden="true"></div>
+    <div class="bg-orb orb-2" aria-hidden="true"></div>
+
+    <main class="page">
+      <header class="hero">
+        <div class="badge">Docker utilities</div>
+        <h1>Docker Utility Lab</h1>
+        <p>
+          A focused set of everyday Docker tools. Convert, generate, and validate
+          without leaving your browser.
+        </p>
+      </header>
+
+      <nav class="tabs" aria-label="Docker utilities">
+        <button class="tab active" data-tab="convert">Compose <-> Run</button>
+        <button class="tab" data-tab="dockerfile">Dockerfile</button>
+        <button class="tab" data-tab="runbuilder">Run Builder</button>
+        <button class="tab" data-tab="composebuilder">Compose Builder</button>
+        <button class="tab" data-tab="envconverter">Env Converter</button>
+        <button class="tab" data-tab="ports">Port Explainer</button>
+        <button class="tab" data-tab="volumes">Volume Helper</button>
+        <button class="tab" data-tab="imagetag">Image Tag Helper</button>
+        <button class="tab" data-tab="health">Healthcheck</button>
+        <button class="tab" data-tab="network">Network Helper</button>
+        <button class="tab" data-tab="formatter">Formatter</button>
+      </nav>
+
+      <section class="tab-panel active" id="tab-convert">
+        <div class="panel-grid">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Docker Compose</h2>
+                <p>Paste a Compose file or a services block.</p>
+              </div>
+              <div class="panel-actions">
+                <button class="ghost" type="button" id="composeClear">Clear</button>
+              </div>
+            </div>
+            <textarea
+              id="composeInput"
+              spellcheck="false"
+              placeholder="services:\n  api:\n    image: nginx:latest\n    ports:\n      - '8080:80'\n    environment:\n      - NODE_ENV=production"
+            ></textarea>
+            <div class="panel-footer">
+              <button id="toRun" class="primary" type="button">Convert to docker run</button>
+              <div class="hint">Supports common options. See notes below.</div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>docker run</h2>
+                <p>Paste a docker run command to generate Compose.</p>
+              </div>
+              <div class="panel-actions">
+                <button class="ghost" type="button" id="runClear">Clear</button>
+              </div>
+            </div>
+            <textarea
+              id="runInput"
+              spellcheck="false"
+              placeholder="docker run --name web -p 8080:80 -e NODE_ENV=production nginx:latest"
+            ></textarea>
+            <div class="panel-footer">
+              <button id="toCompose" class="secondary" type="button">Convert to Compose</button>
+              <div class="hint">Supports common options. See notes below.</div>
+            </div>
+          </div>
+        </div>
+
+        <section class="output">
+          <div class="output-header">
+            <div>
+              <h3>Output</h3>
+              <p>Copy or adjust the generated result.</p>
+            </div>
+            <button class="ghost" type="button" id="copyOutput">Copy output</button>
+          </div>
+          <div class="status" id="statusConvert">Ready.</div>
+          <pre id="outputConvert" aria-live="polite"></pre>
+          <div class="notes" id="notesConvert"></div>
+        </section>
+      </section>
+
+      <section class="tab-panel" id="tab-dockerfile">
+        <div class="utility-grid">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Dockerfile Builder</h2>
+                <p>Generate a simple Dockerfile from common inputs.</p>
+              </div>
+              <div class="panel-actions">
+                <button class="ghost" type="button" id="dfClear">Clear</button>
+              </div>
+            </div>
+            <div class="form-grid">
+              <label class="field mono">
+                <span>Base image</span>
+                <input id="dfBase" type="text" placeholder="node:20-alpine" />
+              </label>
+              <label class="field mono">
+                <span>Workdir</span>
+                <input id="dfWorkdir" type="text" placeholder="/app" />
+              </label>
+              <label class="field mono">
+                <span>Copy rules (SRC DEST per line)</span>
+                <textarea id="dfCopy" class="textarea-sm" placeholder="package*.json /app/\n. /app"></textarea>
+              </label>
+              <label class="field mono">
+                <span>Run commands (one per line)</span>
+                <textarea id="dfRun" class="textarea-sm" placeholder="npm ci --omit=dev\nnpm run build"></textarea>
+              </label>
+              <label class="field mono">
+                <span>Env vars (KEY=VAL per line)</span>
+                <textarea id="dfEnv" class="textarea-sm" placeholder="NODE_ENV=production"></textarea>
+              </label>
+              <label class="field mono">
+                <span>Expose ports (one per line)</span>
+                <textarea id="dfExpose" class="textarea-sm" placeholder="3000"></textarea>
+              </label>
+              <label class="field mono">
+                <span>Entrypoint</span>
+                <input id="dfEntrypoint" type="text" placeholder='["node","server.js"]' />
+              </label>
+              <label class="field mono">
+                <span>CMD</span>
+                <input id="dfCmd" type="text" placeholder="npm start" />
+              </label>
+            </div>
+            <div class="panel-footer">
+              <button id="dfGenerate" class="primary" type="button">Generate Dockerfile</button>
+            </div>
+          </div>
+
+          <div class="panel output">
+            <div class="output-header">
+              <div>
+                <h3>Dockerfile</h3>
+                <p>Copy the generated output.</p>
+              </div>
+              <button class="ghost" type="button" id="dfCopyOutput">Copy output</button>
+            </div>
+            <div class="status" id="dfStatus">Ready.</div>
+            <pre id="dfOutput"></pre>
+            <div class="notes" id="dfNotes"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-runbuilder">
+        <div class="utility-grid">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>docker run Builder</h2>
+                <p>Build a docker run command from structured inputs.</p>
+              </div>
+              <div class="panel-actions">
+                <button class="ghost" type="button" id="rbClear">Clear</button>
+              </div>
+            </div>
+            <div class="form-grid">
+              <label class="field mono">
+                <span>Image</span>
+                <input id="rbImage" type="text" placeholder="redis:7-alpine" />
+              </label>
+              <label class="field mono">
+                <span>Name</span>
+                <input id="rbName" type="text" placeholder="cache" />
+              </label>
+              <label class="field mono">
+                <span>Ports (HOST:CONTAINER per line)</span>
+                <textarea id="rbPorts" class="textarea-sm" placeholder="6379:6379"></textarea>
+              </label>
+              <label class="field mono">
+                <span>Env vars (KEY=VAL per line)</span>
+                <textarea id="rbEnv" class="textarea-sm" placeholder="REDIS_PASSWORD=secret"></textarea>
+              </label>
+              <label class="field mono">
+                <span>Volumes (SRC:DEST[:MODE] per line)</span>
+                <textarea id="rbVolumes" class="textarea-sm" placeholder="./data:/data"></textarea>
+              </label>
+              <label class="field">
+                <span>Restart policy</span>
+                <select id="rbRestart">
+                  <option value="">None</option>
+                  <option value="no">no</option>
+                  <option value="always">always</option>
+                  <option value="unless-stopped">unless-stopped</option>
+                  <option value="on-failure">on-failure</option>
+                </select>
+              </label>
+              <label class="field mono">
+                <span>Network</span>
+                <input id="rbNetwork" type="text" placeholder="bridge" />
+              </label>
+              <label class="field mono">
+                <span>Working dir</span>
+                <input id="rbWorkdir" type="text" placeholder="/app" />
+              </label>
+              <label class="field mono">
+                <span>User</span>
+                <input id="rbUser" type="text" placeholder="1000:1000" />
+              </label>
+              <label class="field mono">
+                <span>Entrypoint</span>
+                <input id="rbEntrypoint" type="text" placeholder="/bin/sh" />
+              </label>
+              <label class="field mono">
+                <span>Command</span>
+                <input id="rbCommand" type="text" placeholder="redis-server" />
+              </label>
+            </div>
+            <div class="checkbox-grid">
+              <label class="check"><input id="rbDetach" type="checkbox" /> Detach (-d)</label>
+              <label class="check"><input id="rbRm" type="checkbox" /> Auto-remove (--rm)</label>
+              <label class="check"><input id="rbPrivileged" type="checkbox" /> Privileged</label>
+              <label class="check"><input id="rbTty" type="checkbox" /> TTY (-t)</label>
+              <label class="check"><input id="rbInteractive" type="checkbox" /> Interactive (-i)</label>
+            </div>
+            <div class="panel-footer">
+              <button id="rbGenerate" class="primary" type="button">Generate docker run</button>
+            </div>
+          </div>
+
+          <div class="panel output">
+            <div class="output-header">
+              <div>
+                <h3>docker run</h3>
+                <p>Copy the command and run it.</p>
+              </div>
+              <button class="ghost" type="button" id="rbCopyOutput">Copy output</button>
+            </div>
+            <div class="status" id="rbStatus">Ready.</div>
+            <pre id="rbOutput"></pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-composebuilder">
+        <div class="utility-grid">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Compose Builder</h2>
+                <p>Create a service snippet for docker compose.</p>
+              </div>
+              <div class="panel-actions">
+                <button class="ghost" type="button" id="cbClear">Clear</button>
+              </div>
+            </div>
+            <div class="form-grid">
+              <label class="field mono">
+                <span>Service name</span>
+                <input id="cbService" type="text" placeholder="api" />
+              </label>
+              <label class="field mono">
+                <span>Image</span>
+                <input id="cbImage" type="text" placeholder="node:18-alpine" />
+              </label>
+              <label class="field mono">
+                <span>Container name</span>
+                <input id="cbContainer" type="text" placeholder="api" />
+              </label>
+              <label class="field mono">
+                <span>Ports (HOST:CONTAINER per line)</span>
+                <textarea id="cbPorts" class="textarea-sm" placeholder="3000:3000"></textarea>
+              </label>
+              <label class="field mono">
+                <span>Env vars (KEY=VAL per line)</span>
+                <textarea id="cbEnv" class="textarea-sm" placeholder="NODE_ENV=production"></textarea>
+              </label>
+              <label class="field mono">
+                <span>Volumes (SRC:DEST[:MODE] per line)</span>
+                <textarea id="cbVolumes" class="textarea-sm" placeholder="./data:/app/data"></textarea>
+              </label>
+              <label class="field mono">
+                <span>Command</span>
+                <input id="cbCommand" type="text" placeholder="npm start" />
+              </label>
+              <label class="field mono">
+                <span>Entrypoint</span>
+                <input id="cbEntrypoint" type="text" placeholder="/bin/sh" />
+              </label>
+              <label class="field">
+                <span>Restart policy</span>
+                <select id="cbRestart">
+                  <option value="">None</option>
+                  <option value="no">no</option>
+                  <option value="always">always</option>
+                  <option value="unless-stopped">unless-stopped</option>
+                  <option value="on-failure">on-failure</option>
+                </select>
+              </label>
+              <label class="field mono">
+                <span>Network mode</span>
+                <input id="cbNetwork" type="text" placeholder="bridge" />
+              </label>
+              <label class="field mono">
+                <span>Depends on (service names per line)</span>
+                <textarea id="cbDepends" class="textarea-sm" placeholder="db"></textarea>
+              </label>
+              <label class="field mono">
+                <span>Working dir</span>
+                <input id="cbWorkdir" type="text" placeholder="/app" />
+              </label>
+              <label class="field mono">
+                <span>User</span>
+                <input id="cbUser" type="text" placeholder="1000:1000" />
+              </label>
+            </div>
+            <div class="checkbox-grid">
+              <label class="check"><input id="cbTty" type="checkbox" /> TTY</label>
+              <label class="check"><input id="cbStdin" type="checkbox" /> stdin_open</label>
+            </div>
+            <div class="panel-footer">
+              <button id="cbGenerate" class="primary" type="button">Generate Compose</button>
+            </div>
+          </div>
+
+          <div class="panel output">
+            <div class="output-header">
+              <div>
+                <h3>Compose snippet</h3>
+                <p>Paste into your compose file.</p>
+              </div>
+              <button class="ghost" type="button" id="cbCopyOutput">Copy output</button>
+            </div>
+            <div class="status" id="cbStatus">Ready.</div>
+            <pre id="cbOutput"></pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-envconverter">
+        <div class="panel-grid">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>.env</h2>
+                <p>KEY=VALUE pairs, one per line.</p>
+              </div>
+            </div>
+            <textarea id="envInput" spellcheck="false" placeholder="NODE_ENV=production\nAPI_URL=http://localhost:3000"></textarea>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Compose environment</h2>
+                <p>Paste an environment block or mapping.</p>
+              </div>
+            </div>
+            <textarea id="composeEnvInput" spellcheck="false" placeholder="environment:\n  NODE_ENV: production\n  API_URL: http://localhost:3000"></textarea>
+          </div>
+        </div>
+        <div class="toolbar">
+          <button id="envToCompose" class="primary" type="button">Env -> Compose</button>
+          <button id="composeToEnv" class="secondary" type="button">Compose -> Env</button>
+          <button id="envClear" class="ghost" type="button">Clear Both</button>
+        </div>
+        <section class="output">
+          <div class="output-header">
+            <div>
+              <h3>Output</h3>
+              <p>Use the converted snippet.</p>
+            </div>
+            <button class="ghost" type="button" id="envCopyOutput">Copy output</button>
+          </div>
+          <div class="status" id="envStatus">Ready.</div>
+          <pre id="envOutput"></pre>
+        </section>
+      </section>
+
+      <section class="tab-panel" id="tab-ports">
+        <div class="utility-grid">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Port Mapping Explainer</h2>
+                <p>Explain host-to-container port mappings.</p>
+              </div>
+              <div class="panel-actions">
+                <button class="ghost" type="button" id="portClear">Clear</button>
+              </div>
+            </div>
+            <textarea id="portInput" spellcheck="false" placeholder="8080:80\n127.0.0.1:5432:5432/tcp"></textarea>
+            <div class="panel-footer">
+              <button id="portExplain" class="primary" type="button">Explain ports</button>
+            </div>
+          </div>
+          <div class="panel output">
+            <div class="output-header">
+              <div>
+                <h3>Explanation</h3>
+                <p>Human-readable mapping details.</p>
+              </div>
+              <button class="ghost" type="button" id="portCopyOutput">Copy output</button>
+            </div>
+            <div class="status" id="portStatus">Ready.</div>
+            <pre id="portOutput"></pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-volumes">
+        <div class="utility-grid">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Volume Mount Helper</h2>
+                <p>Generate docker run and Compose volume entries.</p>
+              </div>
+              <div class="panel-actions">
+                <button class="ghost" type="button" id="volClear">Clear</button>
+              </div>
+            </div>
+            <div class="form-grid">
+              <label class="field">
+                <span>Type</span>
+                <select id="volType">
+                  <option value="bind">Bind mount</option>
+                  <option value="named">Named volume</option>
+                  <option value="anonymous">Anonymous volume</option>
+                </select>
+              </label>
+              <label class="field mono">
+                <span>Source (host path or volume name)</span>
+                <input id="volSource" type="text" placeholder="./data" />
+              </label>
+              <label class="field mono">
+                <span>Target (container path)</span>
+                <input id="volTarget" type="text" placeholder="/var/lib/data" />
+              </label>
+              <label class="field">
+                <span>Mode</span>
+                <select id="volMode">
+                  <option value="">rw</option>
+                  <option value="ro">ro</option>
+                </select>
+              </label>
+            </div>
+            <div class="panel-footer">
+              <button id="volGenerate" class="primary" type="button">Generate mounts</button>
+            </div>
+          </div>
+
+          <div class="panel output">
+            <div class="output-header">
+              <div>
+                <h3>Mount output</h3>
+                <p>Drop into docker run or Compose.</p>
+              </div>
+              <button class="ghost" type="button" id="volCopyOutput">Copy output</button>
+            </div>
+            <div class="status" id="volStatus">Ready.</div>
+            <pre id="volOutput"></pre>
+            <div class="notes" id="volNotes"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-imagetag">
+        <div class="utility-grid">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Image Tag Helper</h2>
+                <p>Break down image references and tags.</p>
+              </div>
+              <div class="panel-actions">
+                <button class="ghost" type="button" id="imgClear">Clear</button>
+              </div>
+            </div>
+            <label class="field mono">
+              <span>Image reference</span>
+              <input id="imgInput" type="text" placeholder="registry.example.com/team/app:2.1.0" />
+            </label>
+            <div class="panel-footer">
+              <button id="imgAnalyze" class="primary" type="button">Analyze image</button>
+            </div>
+          </div>
+
+          <div class="panel output">
+            <div class="output-header">
+              <div>
+                <h3>Breakdown</h3>
+                <p>Registry, namespace, tag, and digest.</p>
+              </div>
+              <button class="ghost" type="button" id="imgCopyOutput">Copy output</button>
+            </div>
+            <div class="status" id="imgStatus">Ready.</div>
+            <pre id="imgOutput"></pre>
+            <div class="notes" id="imgNotes"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-health">
+        <div class="utility-grid">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Healthcheck Builder</h2>
+                <p>Create Compose healthchecks and docker run flags.</p>
+              </div>
+              <div class="panel-actions">
+                <button class="ghost" type="button" id="healthClear">Clear</button>
+              </div>
+            </div>
+            <div class="form-grid">
+              <label class="field mono">
+                <span>Command</span>
+                <input
+                  id="healthCmd"
+                  type="text"
+                  placeholder="curl -f http://localhost:8080/health || exit 1"
+                />
+              </label>
+              <label class="field mono">
+                <span>Interval (e.g. 30s)</span>
+                <input id="healthInterval" type="text" placeholder="30s" />
+              </label>
+              <label class="field mono">
+                <span>Timeout (e.g. 5s)</span>
+                <input id="healthTimeout" type="text" placeholder="5s" />
+              </label>
+              <label class="field mono">
+                <span>Retries</span>
+                <input id="healthRetries" type="number" min="1" placeholder="3" />
+              </label>
+              <label class="field mono">
+                <span>Start period (e.g. 10s)</span>
+                <input id="healthStart" type="text" placeholder="10s" />
+              </label>
+            </div>
+            <div class="panel-footer">
+              <button id="healthGenerate" class="primary" type="button">Generate healthcheck</button>
+            </div>
+          </div>
+
+          <div class="panel output">
+            <div class="output-header">
+              <div>
+                <h3>Healthcheck output</h3>
+                <p>Compose snippet + docker run flags.</p>
+              </div>
+              <button class="ghost" type="button" id="healthCopyOutput">Copy output</button>
+            </div>
+            <div class="status" id="healthStatus">Ready.</div>
+            <pre id="healthOutput"></pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-network">
+        <div class="utility-grid">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Network + Alias Helper</h2>
+                <p>Generate network stanzas for Compose.</p>
+              </div>
+              <div class="panel-actions">
+                <button class="ghost" type="button" id="netClear">Clear</button>
+              </div>
+            </div>
+            <div class="form-grid">
+              <label class="field mono">
+                <span>Service name</span>
+                <input id="netService" type="text" placeholder="api" />
+              </label>
+              <label class="field mono">
+                <span>Network name</span>
+                <input id="netName" type="text" placeholder="backend" />
+              </label>
+              <label class="field mono">
+                <span>Aliases (one per line)</span>
+                <textarea id="netAliases" class="textarea-sm" placeholder="api\nservice-api"></textarea>
+              </label>
+            </div>
+            <div class="panel-footer">
+              <button id="netGenerate" class="primary" type="button">Generate network</button>
+            </div>
+          </div>
+
+          <div class="panel output">
+            <div class="output-header">
+              <div>
+                <h3>Compose networks</h3>
+                <p>Paste into your compose file.</p>
+              </div>
+              <button class="ghost" type="button" id="netCopyOutput">Copy output</button>
+            </div>
+            <div class="status" id="netStatus">Ready.</div>
+            <pre id="netOutput"></pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-formatter">
+        <div class="utility-grid">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Compose Formatter</h2>
+                <p>Format or normalize YAML and JSON.</p>
+              </div>
+              <div class="panel-actions">
+                <button class="ghost" type="button" id="formatClear">Clear</button>
+              </div>
+            </div>
+            <textarea id="formatInput" spellcheck="false" placeholder="services:\n  api:\n    image: node:18-alpine\n    ports:\n      - '3000:3000'"></textarea>
+            <div class="toolbar">
+              <button id="formatYaml" class="primary" type="button">Format as YAML</button>
+              <button id="formatJson" class="secondary" type="button">Format as JSON</button>
+            </div>
+          </div>
+          <div class="panel output">
+            <div class="output-header">
+              <div>
+                <h3>Formatted output</h3>
+                <p>Clean structure for sharing.</p>
+              </div>
+              <button class="ghost" type="button" id="formatCopyOutput">Copy output</button>
+            </div>
+            <div class="status" id="formatStatus">Ready.</div>
+            <pre id="formatOutput"></pre>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        Built for everyday Docker workflows. No data leaves your browser.
+      </footer>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
